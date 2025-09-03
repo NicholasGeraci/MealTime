@@ -2,9 +2,11 @@ package com.example.mealtime.screens
 
 import android.widget.Toast
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -53,41 +55,57 @@ fun InputScreen(mealTimeViewModel: MealTimeViewModel, onDoneClicked: () -> Unit)
             ) { Text("Done") }
         }}
     ) { innerPadding ->
-        Column(
+        LazyColumn(
             modifier = Modifier
-                .fillMaxSize()
-                .padding(innerPadding),
+                .padding(innerPadding)
+                .fillMaxWidth(),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            FoodQuantityInputField(
-                foodQuantity = uiState.foodQuantity,
-                foodQuantityHasError = uiState.foodQuantityHasError,
-                onFoodQuantityChange = { mealTimeViewModel.setFoodQuantity(it) }
-            )
-            LazyColumn {
-                itemsIndexed(uiState.listOfFoodItemUiStates) { i, foodItemState ->
+            item { FoodQuantityInputField(
+                    modifier = Modifier
+                        .padding(vertical =  20.dp)
+                        .offset(y = 5.dp),
+                    foodQuantity = uiState.foodQuantity,
+                    foodQuantityHasError = uiState.foodQuantityHasError,
+                    onFoodQuantityChange = { mealTimeViewModel.setFoodQuantity(it) }
+            )}
+            if (uiState.foodQuantity.isEmpty() || uiState.foodQuantityHasError) {
+                item { Text(
+                    text = "Foods will be displayed here.",
+                    modifier = Modifier.padding(vertical = 195.dp)
+                )}
+            } else { itemsIndexed(uiState.listOfFoodItemUiStates) { i, foodItemState ->
+                Column(modifier = Modifier.width(350.dp)) {
                     FoodDataInputItem(
+                        modifier = Modifier.padding(6.dp),
+                        index = i,
                         identifier = foodItemState.identifier,
                         identifierHasError = foodItemState.identifierHasError,
-                        onIdentifierChange = { mealTimeViewModel.setFoodItemIdentifier(
-                            index = i,
-                            newIdentifier = it
-                        )},
+                        onIdentifierChange = {
+                            mealTimeViewModel.setFoodItemIdentifier(
+                                index = i,
+                                newIdentifier = it
+                            )
+                        },
                         temperature = foodItemState.temperature,
                         temperatureHasError = foodItemState.temperatureHasError,
-                        onTemperatureChange = { mealTimeViewModel.setFoodItemTemperature(
-                            index = i,
-                            newTemperature = it
-                        )},
+                        onTemperatureChange = {
+                            mealTimeViewModel.setFoodItemTemperature(
+                                index = i,
+                                newTemperature = it
+                            )
+                        },
                         timeToCook = foodItemState.timeToCook,
                         timeToCookHasError = foodItemState.timeToCookHasError,
-                        onTimeToCookChange = { mealTimeViewModel.setFoodItemTimeToCook(
-                            index = i,
-                            newTimeToCook = it
-                        )}
+                        onTimeToCookChange = {
+                            mealTimeViewModel.setFoodItemTimeToCook(
+                                index = i,
+                                newTimeToCook = it
+                            )
+                        }
                     )
                 }
-            }
+            }}
         }
     }
 }
@@ -103,6 +121,7 @@ private fun FoodQuantityInputField(
         modifier = modifier,
         value = foodQuantity,
         onValueChange = { onFoodQuantityChange(it) },
+        label = "Quantity",
         isError = foodQuantityHasError
     )
 }
@@ -110,6 +129,7 @@ private fun FoodQuantityInputField(
 @Composable
 private fun FoodDataInputItem(
     modifier: Modifier = Modifier,
+    index: Int,
     identifier: String,
     identifierHasError: Boolean,
     onIdentifierChange: (String) -> Unit,
@@ -120,23 +140,44 @@ private fun FoodDataInputItem(
     timeToCookHasError: Boolean,
     onTimeToCookChange: (String) -> Unit
 ) {
-    //TODO Make this pretty.
-    OutlinedCard(modifier = modifier) {
-        NumbersOnlyTextField(
-            value = identifier,
-            onValueChange = { onIdentifierChange(it) },
-            isError = identifierHasError
+    OutlinedCard(modifier = modifier, shape = RoundedCornerShape(4.dp)) {
+        Text(
+            text = "Food ${index + 1}",
+            modifier = Modifier
+                .padding(horizontal = 16.dp)
+                .offset(y = 6.dp)
         )
-        NumbersOnlyTextField(
-            value = temperature,
-            onValueChange = { onTemperatureChange(it) },
-            isError = temperatureHasError
-        )
-        NumbersOnlyTextField(
-            value = timeToCook,
-            onValueChange = { onTimeToCookChange(it) },
-            isError = timeToCookHasError
-        )
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            OutlinedTextField(
+                value = identifier,
+                onValueChange = { onIdentifierChange(it) },
+                modifier = Modifier
+                    .padding(vertical = 8.dp, horizontal = 12.dp)
+                    .fillMaxWidth(),
+                label = { Text("Name") },
+                isError = identifierHasError
+            )
+            Row {
+                NumbersOnlyTextField(
+                    modifier = Modifier
+                        .padding(12.dp)
+                        .weight(1f),
+                    value = temperature,
+                    onValueChange = { onTemperatureChange(it) },
+                    label = "Temp",
+                    isError = temperatureHasError
+                )
+                NumbersOnlyTextField(
+                    modifier = Modifier
+                        .padding(12.dp)
+                        .weight(1f),
+                    value = timeToCook,
+                    onValueChange = { onTimeToCookChange(it) },
+                    label = "Time",
+                    isError = timeToCookHasError
+                )
+            }
+        }
     }
 }
 
@@ -145,12 +186,14 @@ private fun NumbersOnlyTextField(
     modifier: Modifier = Modifier,
     value: String,
     onValueChange: (String) -> Unit,
+    label: String,
     isError: Boolean = false
 ) {
     OutlinedTextField(
         value = value,
         onValueChange = { onValueChange(it) },
         modifier = modifier,
+        label = { Text(label) },
         isError = isError,
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
         singleLine = true
