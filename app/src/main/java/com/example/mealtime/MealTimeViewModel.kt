@@ -30,6 +30,8 @@ data class MealTimeUiState(
 
     val foodItems: List<FoodItem> = listOf(),
     val foodItemUiStates: List<FoodItemUiState> = listOf(),
+
+    val doneButtonEnabled: Boolean = false
 )
 
 class MealTimeViewModel : ViewModel() {
@@ -124,6 +126,9 @@ class MealTimeViewModel : ViewModel() {
             it.copy(foodItemUiStates = updatedList)
         }
     }
+
+    //TODO Implement this.
+    fun enableDoneButton() {}
 
     fun updateListOfFoodItems() {
         _uiState.update { currentState ->
