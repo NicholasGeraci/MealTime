@@ -47,7 +47,10 @@ fun InputScreen(mealTimeViewModel: MealTimeViewModel, onDoneClicked: () -> Unit)
         topBar = { TopAppBar(title = { Text("Meal Time") }) },
         bottomBar = { BottomAppBar(containerColor = MaterialTheme.colorScheme.background) {
             Button(
-                onClick = { onDoneClicked() },
+                onClick = {
+                    mealTimeViewModel.updateListOfFoodItems()
+                    onDoneClicked()
+                },
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(8.dp),
@@ -74,7 +77,7 @@ fun InputScreen(mealTimeViewModel: MealTimeViewModel, onDoneClicked: () -> Unit)
                     text = "Foods will be displayed here.",
                     modifier = Modifier.padding(vertical = 195.dp)
                 )}
-            } else { itemsIndexed(uiState.listOfFoodItemUiStates) { i, foodItemState ->
+            } else { itemsIndexed(uiState.foodItemUiStates) { i, foodItemState ->
                 Column(modifier = Modifier.width(350.dp)) {
                     FoodDataInputItem(
                         modifier = Modifier.padding(6.dp),
@@ -95,10 +98,10 @@ fun InputScreen(mealTimeViewModel: MealTimeViewModel, onDoneClicked: () -> Unit)
                                 newTemperature = it
                             )
                         },
-                        timeToCook = foodItemState.timeToCook,
-                        timeToCookHasError = foodItemState.timeToCookHasError,
-                        onTimeToCookChange = {
-                            mealTimeViewModel.setFoodItemTimeToCook(
+                        minutesToCook = foodItemState.minutesToCook,
+                        minutesToCookHasError = foodItemState.minutesToCookHasError,
+                        onMinutesToCookChange = {
+                            mealTimeViewModel.setFoodItemMinutesToCook(
                                 index = i,
                                 newTimeToCook = it
                             )
@@ -136,9 +139,9 @@ private fun FoodDataInputItem(
     temperature: String,
     temperatureHasError: Boolean,
     onTemperatureChange: (String) -> Unit,
-    timeToCook: String,
-    timeToCookHasError: Boolean,
-    onTimeToCookChange: (String) -> Unit
+    minutesToCook: String,
+    minutesToCookHasError: Boolean,
+    onMinutesToCookChange: (String) -> Unit
 ) {
     OutlinedCard(modifier = modifier, shape = RoundedCornerShape(4.dp)) {
         Text(
@@ -171,10 +174,10 @@ private fun FoodDataInputItem(
                     modifier = Modifier
                         .padding(12.dp)
                         .weight(1f),
-                    value = timeToCook,
-                    onValueChange = { onTimeToCookChange(it) },
+                    value = minutesToCook,
+                    onValueChange = { onMinutesToCookChange(it) },
                     label = "Time",
-                    isError = timeToCookHasError
+                    isError = minutesToCookHasError
                 )
             }
         }

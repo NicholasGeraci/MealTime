@@ -2,6 +2,7 @@ package com.example.mealtime
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.mealtime.business.DegreeMinutesCookingMethod
 import com.example.mealtime.business.FoodItem
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -19,16 +20,16 @@ data class FoodItemUiState(
     val temperature: String = "",
     val temperatureHasError: Boolean = false,
 
-    val timeToCook: String = "",
-    val timeToCookHasError: Boolean = false,
+    val minutesToCook: String = "",
+    val minutesToCookHasError: Boolean = false,
 )
 
 data class MealTimeUiState(
     val foodQuantity: String = "",
     val foodQuantityHasError: Boolean = false,
 
-    val listOfFoodItems: List<FoodItem> = listOf(),
-    val listOfFoodItemUiStates: List<FoodItemUiState> = listOf()
+    val foodItems: List<FoodItem> = listOf(),
+    val foodItemUiStates: List<FoodItemUiState> = listOf(),
 )
 
 class MealTimeViewModel : ViewModel() {
@@ -54,14 +55,14 @@ class MealTimeViewModel : ViewModel() {
                 newFoodQuantity < 2 -> {
                     emitToast("Minimum of two foods.")
                     _uiState.update { it.copy(
-                            listOfFoodItemUiStates = listOf(),
+                            foodItemUiStates = listOf(),
                             foodQuantityHasError = true
                     )}
                 }
                 newFoodQuantity > 5 -> {
                     emitToast("You're gonna burn your house down.")
                     _uiState.update { it.copy(
-                            listOfFoodItemUiStates = listOf(),
+                            foodItemUiStates = listOf(),
                             foodQuantityHasError = true
                     )}
                 }
@@ -73,7 +74,7 @@ class MealTimeViewModel : ViewModel() {
                         count++
                     }
                     _uiState.update { it.copy(
-                            listOfFoodItemUiStates = newListOfFoodItemUiStates.toList(),
+                            foodItemUiStates = newListOfFoodItemUiStates.toList(),
                             foodQuantityHasError = false
                     )}
                 }
@@ -81,7 +82,7 @@ class MealTimeViewModel : ViewModel() {
         } catch (_: NumberFormatException) {
             if (newFoodQuantity.isNotBlank()) emitToast("Invalid input.")
             _uiState.update { it.copy(
-                listOfFoodItemUiStates = listOf(),
+                foodItemUiStates = listOf(),
                 foodQuantityHasError = true
             )}
         }
@@ -89,12 +90,12 @@ class MealTimeViewModel : ViewModel() {
 
     fun setFoodItemIdentifier(index: Int, newIdentifier: String) {
         _uiState.update {
-            val updatedList = it.listOfFoodItemUiStates.toMutableList()
+            val updatedList = it.foodItemUiStates.toMutableList()
             updatedList[index] = updatedList[index].copy(
                 identifier = newIdentifier,
                 identifierHasError = newIdentifier.isBlank()
             )
-            it.copy(listOfFoodItemUiStates = updatedList)
+            it.copy(foodItemUiStates = updatedList)
         }
     }
 
@@ -102,25 +103,39 @@ class MealTimeViewModel : ViewModel() {
         val hasError = newTemperature.toIntOrNull() == null && newTemperature.isNotBlank()
         if (hasError) emitToast("Invalid Input.")
         _uiState.update {
-            val updatedList = it.listOfFoodItemUiStates.toMutableList()
+            val updatedList = it.foodItemUiStates.toMutableList()
             updatedList[index] = updatedList[index].copy(
                 temperature = newTemperature,
                 temperatureHasError = hasError || newTemperature.isBlank()
             )
-            it.copy(listOfFoodItemUiStates = updatedList)
+            it.copy(foodItemUiStates = updatedList)
         }
     }
 
-    fun setFoodItemTimeToCook(index: Int, newTimeToCook: String) {
+    fun setFoodItemMinutesToCook(index: Int, newTimeToCook: String) {
         val hasError = newTimeToCook.toIntOrNull() == null && newTimeToCook.isNotBlank()
         if (hasError) emitToast("Invalid Input.")
         _uiState.update {
-            val updatedList = it.listOfFoodItemUiStates.toMutableList()
+            val updatedList = it.foodItemUiStates.toMutableList()
             updatedList[index] = updatedList[index].copy(
-                timeToCook = newTimeToCook,
-                timeToCookHasError = hasError || newTimeToCook.isBlank()
+                minutesToCook = newTimeToCook,
+                minutesToCookHasError = hasError || newTimeToCook.isBlank()
             )
-            it.copy(listOfFoodItemUiStates = updatedList)
+            it.copy(foodItemUiStates = updatedList)
+        }
+    }
+
+    fun updateListOfFoodItems() {
+        _uiState.update { currentState ->
+            val updatedList = currentState.foodItems.toMutableList()
+            currentState.foodItemUiStates.forEach {
+                updatedList.add(FoodItem(
+                    identifier = it.identifier,
+                    temperature = it.temperature.toInt(),
+                    minutesToCook = it.minutesToCook.toInt()
+                ))
+            }
+            currentState.copy(foodItems = DegreeMinutesCookingMethod(updatedList).get())
         }
     }
 }
