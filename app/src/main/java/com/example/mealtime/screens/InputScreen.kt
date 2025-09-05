@@ -158,7 +158,7 @@ private fun FoodDataInputItem(
                 modifier = Modifier
                     .padding(vertical = 8.dp, horizontal = 12.dp)
                     .fillMaxWidth(),
-                label = { Text("Name") },
+                label = { Text("Food name") },
                 isError = identifierHasError
             )
             Row {
@@ -168,7 +168,7 @@ private fun FoodDataInputItem(
                         .weight(1f),
                     value = temperature,
                     onValueChange = { onTemperatureChange(it) },
-                    label = "Temp",
+                    label = "Temperature",
                     isError = temperatureHasError
                 )
                 NumbersOnlyTextField(
@@ -177,7 +177,7 @@ private fun FoodDataInputItem(
                         .weight(1f),
                     value = minutesToCook,
                     onValueChange = { onMinutesToCookChange(it) },
-                    label = "Time",
+                    label = "Time to cook",
                     isError = minutesToCookHasError
                 )
             }
