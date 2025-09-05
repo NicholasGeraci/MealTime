@@ -11,4 +11,5 @@ Meal Time is an Android application that helps you cook two or more frozen foods
 
 ## Disclaimer
 
-I am in no way, shape, and/or form responsible for any burnt/undercooked foods, destroyed appliances, cooked persons, or homes engulfed in flames from the use of this application. *Use at your own risk!*
+I am in no way, shape, and/or form responsible for any burnt/undercooked foods, destroyed appliances, cooked persons, or homes engulfed in flames from the use of this application. 
+This application uses the Degree Cooking Method, which is not without flaw. It assumes all foods require the same heat energy, though that is seldom the case. Adjust the actual cooking times as needed. *Use at your own risk!*
