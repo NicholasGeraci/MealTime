@@ -99,6 +99,7 @@ class MealTimeViewModel : ViewModel() {
             )
             it.copy(foodItemUiStates = updatedList)
         }
+        enableDoneButton()
     }
 
     fun setFoodItemTemperature(index: Int, newTemperature: String) {
@@ -112,6 +113,7 @@ class MealTimeViewModel : ViewModel() {
             )
             it.copy(foodItemUiStates = updatedList)
         }
+        enableDoneButton()
     }
 
     fun setFoodItemMinutesToCook(index: Int, newTimeToCook: String) {
@@ -125,10 +127,21 @@ class MealTimeViewModel : ViewModel() {
             )
             it.copy(foodItemUiStates = updatedList)
         }
+        enableDoneButton()
     }
 
-    //TODO Implement this.
-    fun enableDoneButton() {}
+    private fun enableDoneButton() {
+        _uiState.update { currentState ->
+            val hasError = mutableListOf<Boolean>()
+            hasError.add(currentState.foodQuantityHasError && currentState.foodQuantity.isBlank())
+            currentState.foodItemUiStates.forEach {
+                hasError.add(it.identifierHasError || it.identifier.isBlank())
+                hasError.add(it.temperatureHasError || it.temperature.isBlank())
+                hasError.add(it.minutesToCookHasError || it.minutesToCook.isBlank())
+            }
+            currentState.copy(doneButtonEnabled = hasError.all { !it })
+        }
+    }
 
     fun updateListOfFoodItems() {
         _uiState.update { currentState ->

@@ -54,6 +54,7 @@ fun InputScreen(mealTimeViewModel: MealTimeViewModel, onDoneClicked: () -> Unit)
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(8.dp),
+                enabled = uiState.doneButtonEnabled,
                 shape = RoundedCornerShape(4.dp)
             ) { Text("Done") }
         }}
